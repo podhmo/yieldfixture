@@ -1,3 +1,4 @@
+import os.path
 import unittest
 import textwrap
 import contextlib
@@ -14,26 +15,9 @@ def _capture():
 
 class Tests(unittest.TestCase):
     def test_it(self):
-        from yieldfixture import create
-        run, yield_fixture = create()
-
-        @yield_fixture
-        def f():
-            print(">>> f")
-            yield 1
-            print(">>> f")
-
-        @yield_fixture
-        def g():
-            print("  >>> g")
-            yield 2
-            print("  >>> g")
-
         with _capture() as buf:
-
-            @run
-            def use_it(x, y):
-                print("{} + {} = {}".format(x, y, x + y))
+            with open(os.path.join(os.path.dirname(__file__), "../../examples/00simple.py")) as rf:
+                exec(rf.read())
 
         expected = textwrap.dedent(
             """
@@ -47,30 +31,10 @@ class Tests(unittest.TestCase):
         self.assertEqual(buf.getvalue().strip(), expected.strip())
 
     def test_it__with_context(self):
-        from yieldfixture import create, with_context
-        run, yield_fixture = create()
-
-        @yield_fixture
-        @with_context
-        def f(ctx):
-            i = ctx["i"] = 0
-            print("{}>>> f".format("  " * i))
-            yield 1
-            print("{}>>> f".format("  " * i))
-
-        @yield_fixture
-        @with_context
-        def g(ctx):
-            i = ctx["i"] = ctx["i"] + 1
-            print("{}>>> g".format("  " * i))
-            yield 2
-            print("{}>>> g".format("  " * i))
-
         with _capture() as buf:
-
-            @run
-            def use_it(x, y, *, i=0):
-                print("{}{} + {} = {}".format("  " * (i + 1), x, y, x + y))
+            with open(os.path.join(os.path.dirname(__file__), "../../examples/01usecontext.py")
+                      ) as rf:
+                exec(rf.read())
 
         expected = textwrap.dedent(
             """
@@ -84,35 +48,12 @@ class Tests(unittest.TestCase):
         self.assertEqual(buf.getvalue().strip(), expected.strip())
 
     def test_it__with_exception(self):
-        from yieldfixture import create, with_context
-        run, yield_fixture = create()
-
-        @yield_fixture
-        @with_context
-        def f(ctx):
-            i = ctx["i"] = 0
-            print("{}>>> f".format("  " * i))
-            try:
-                yield 1
-            finally:
-                print("{}>>> f".format("  " * i))
-
-        @yield_fixture
-        @with_context
-        def g(ctx):
-            i = ctx["i"] = ctx["i"] + 1
-            print("{}>>> g".format("  " * i))
-            try:
-                yield 2
-            finally:
-                print("{}>>> g".format("  " * i))
-
         with _capture() as buf:
             with self.assertRaises(ZeroDivisionError):
-                @run
-                def use_it(x, y, *, i=0):
-                    print("{}{} + {} = {}".format("  " * (i + 1), x, y, x + y))
-                    1 / 0
+                with open(
+                    os.path.join(os.path.dirname(__file__), "../../examples/02withexception.py")
+                ) as rf:
+                    exec(rf.read())
 
         expected = textwrap.dedent(
             """
