@@ -130,7 +130,7 @@ output
   Traceback (most recent call last):
     File "examples/02withexception.py", line 28, in <module>
       def use_it(x, y, *, i=0):
-    File "/Users/nao/vboxshare/venvs/my3/yieldfixture/yieldfixture/__init__.py", line 98, in run_with
+    File "$HOME/vboxshare/venvs/my3/yieldfixture/yieldfixture/__init__.py", line 98, in run_with
       return fn(*ctx.args, **ctx.kwargs)
     File "examples/02withexception.py", line 30, in use_it
       1 / 0
