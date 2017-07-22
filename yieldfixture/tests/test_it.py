@@ -65,3 +65,25 @@ class Tests(unittest.TestCase):
         """
         )
         self.assertEqual(buf.getvalue().strip(), expected.strip())
+
+    def test_it__with_selective(self):
+        with _capture() as buf:
+            with open(os.path.join(os.path.dirname(__file__), "../../examples/03selective.py")
+                      ) as rf:
+                exec(rf.read())
+
+        expected = textwrap.dedent(
+            """
+        >>> f
+          >>> g
+            1 + 2 = 3
+          >>> g
+        >>> f
+        >>> g
+          >>> f
+            2 + 1 = 3
+          >>> f
+        >>> g
+        """
+        )
+        self.assertEqual(buf.getvalue().strip(), expected.strip())
