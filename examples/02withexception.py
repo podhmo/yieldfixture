@@ -7,10 +7,8 @@ run, yield_fixture = create()
 def f(ctx):
     i = ctx["i"] = 0
     print("{}>>> f".format("  " * i))
-    try:
-        yield 1
-    finally:
-        print("{}>>> f".format("  " * i))
+    yield 1
+    print("{}>>> f".format("  " * i))
 
 
 @yield_fixture
@@ -18,10 +16,8 @@ def f(ctx):
 def g(ctx):
     i = ctx["i"] = ctx["i"] + 1
     print("{}>>> g".format("  " * i))
-    try:
-        yield 2
-    finally:
-        print("{}>>> g".format("  " * i))
+    yield 2
+    print("{}>>> g".format("  " * i))
 
 
 @run

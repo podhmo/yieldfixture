@@ -96,10 +96,8 @@ when a exception is raised
   def f(ctx):
       i = ctx["i"] = 0
       print("{}>>> f".format("  " * i))
-      try:
-          yield 1
-      finally:
-          print("{}>>> f".format("  " * i))
+      yield 1
+      print("{}>>> f".format("  " * i))
   
   
   @yield_fixture
@@ -107,10 +105,8 @@ when a exception is raised
   def g(ctx):
       i = ctx["i"] = ctx["i"] + 1
       print("{}>>> g".format("  " * i))
-      try:
-          yield 2
-      finally:
-          print("{}>>> g".format("  " * i))
+      yield 2
+      print("{}>>> g".format("  " * i))
   
   
   @run
@@ -128,11 +124,11 @@ output
     >>> g
   >>> f
   Traceback (most recent call last):
-    File "examples/02withexception.py", line 28, in <module>
+    File "examples/02withexception.py", line 24, in <module>
       def use_it(x, y, *, i=0):
-    File "$HOME/vboxshare/venvs/my3/yieldfixture/yieldfixture/__init__.py", line 98, in run_with
+    File "$HOME/vboxshare/venvs/my3/yieldfixture/yieldfixture/__init__.py", line 125, in run_with
       return fn(*ctx.args, **ctx.kwargs)
-    File "examples/02withexception.py", line 30, in use_it
+    File "examples/02withexception.py", line 26, in use_it
       1 / 0
   ZeroDivisionError: division by zero
 
