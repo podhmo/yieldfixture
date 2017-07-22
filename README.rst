@@ -54,30 +54,30 @@ with context
   @with_context
   def f(ctx):
       i = ctx["i"] = 0
-      print("{}>>> f".format(" " * i))
+      print("{}>>> f".format("  " * i))
       yield 1
-      print("{}>>> f".format(" " * i))
+      print("{}>>> f".format("  " * i))
   
   
   @yield_fixture
   @with_context
   def g(ctx):
       i = ctx["i"] = ctx["i"] + 1
-      print("{}>>> g".format(" " * i))
+      print("{}>>> g".format("  " * i))
       yield 2
-      print("{}>>> g".format(" " * i))
+      print("{}>>> g".format("  " * i))
   
   
   @run
   def use_it(x, y, *, i=0):
-      print("{}{} + {} = {}".format(" " * (i + 1), x, y, x + y))
+      print("{}{} + {} = {}".format("  " * (i + 1), x, y, x + y))
 
 output
 
 .. code-block::
 
   >>> f
-   >>> g
-    1 + 2 = 3
-   >>> g
+    >>> g
+      1 + 2 = 3
+    >>> g
   >>> f
