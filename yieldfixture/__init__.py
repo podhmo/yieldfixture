@@ -1,5 +1,29 @@
 from collections import ChainMap
+import functools
 import contextlib
+
+
+class SafeContextManager(contextlib._GeneratorContextManager):
+    def __exit__(self, type, value, traceback):
+        try:
+            next(self.gen)
+        except StopIteration:
+            if type is None:
+                return
+        else:
+            if type is None:
+                raise RuntimeError("generator didn't stop")
+        return super().__exit__(type, value, traceback)
+
+
+def safe_contextmanager(func):
+    """absolutely call next(), contextmanager()"""
+
+    @functools.wraps(func)
+    def helper(*args, **kwds):
+        return SafeContextManager(func, args, kwds)
+
+    return helper
 
 
 class Context:
@@ -53,12 +77,15 @@ class Marker:
         self.registered = {}
 
     def yield_fixture(self, fixture):
-        lifted = contextlib.contextmanager(fixture)
+        lifted = self.lift(fixture)
         self.fixtures.append(lifted)
         self.registered[fixture] = lifted
         return fixture
 
-    def lift(self, f):
+    def lift(self, fixture):
+        return safe_contextmanager(fixture)
+
+    def get_or_self(self, f):
         return self.registered[f] if f in self.registered else f
 
 
@@ -85,7 +112,7 @@ class Runner:
 
     @contextlib.contextmanager
     def run(self, fixtures=None, context=None):
-        fixtures = [self.marker.lift(f) for f in (fixtures or self.fixtures)]
+        fixtures = [self.marker.get_or_self(f) for f in (fixtures or self.fixtures)]
         ctx = context or Context()  # todo: scope
         with self.use_fixture(ctx, fixtures) as ctx:
             yield ctx
