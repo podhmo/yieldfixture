@@ -23,7 +23,7 @@ testing_extras = tests_require + []
 
 setup(
     name='yieldfixture',
-    version='0.0',
+    version='0.1.0',
     description='-',
     long_description=README + '\n\n' + CHANGES,
     classifiers=[
