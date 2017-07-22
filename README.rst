@@ -146,10 +146,8 @@ selective fixture activation
   def f(ctx):
       i = ctx["i"] = ctx.get("i", -1) + 1
       print("{}>>> f".format("  " * i))
-      try:
-          yield 1
-      finally:
-          print("{}>>> f".format("  " * i))
+      yield 1
+      print("{}>>> f".format("  " * i))
   
   
   @yield_fixture
@@ -157,10 +155,8 @@ selective fixture activation
   def g(ctx):
       i = ctx["i"] = ctx.get("i", -1) + 1
       print("{}>>> g".format("  " * i))
-      try:
-          yield 2
-      finally:
-          print("{}>>> g".format("  " * i))
+      yield 2
+      print("{}>>> g".format("  " * i))
   
   
   @run
