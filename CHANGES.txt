@@ -1,3 +1,7 @@
+0.3.0
+
+- some internal refactoring(mainly, rename methods)
+
 0.2.0
 
 - calling teardown action, absolutely

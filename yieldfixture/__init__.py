@@ -71,7 +71,7 @@ def need_context(fn):
     return hasattr(fn, "_with_context")
 
 
-class Marker:
+class FixtureManager:
     def __init__(self):
         self.fixtures = []
         self.registered = {}
@@ -89,12 +89,26 @@ class Marker:
         return self.registered[f] if f in self.registered else f
 
 
-class Runner:
-    def __init__(self, marker=None):
-        self.marker = marker or Marker()
+class App:
+    def __init__(self, manager=None):
+        self.manager = manager or FixtureManager()
+
+    def yield_fixture(self, fixture):
+        return self.manager.yield_fixture(fixture)
+
+    @property
+    def fixtures(self):
+        return self.manager.fixtures
 
     @contextlib.contextmanager
-    def use_fixture(self, ctx, fixtures):
+    def run_fixture(self, fixtures=None, context=None):
+        fixtures = [self.manager.get_or_self(f) for f in (fixtures or self.fixtures)]
+        ctx = context or Context()  # todo: scope
+        with self._run_fixture(ctx, fixtures) as ctx:
+            yield ctx
+
+    @contextlib.contextmanager
+    def _run_fixture(self, ctx, fixtures):
         if not fixtures:
             yield ctx
         else:
@@ -103,37 +117,27 @@ class Runner:
             if need_context(f):
                 args.append(ctx)
             with f(*args) as val:
-                with self.use_fixture(ctx.merge(val), fixtures[1:]) as ctx:
+                with self._run_fixture(ctx.merge(val), fixtures[1:]) as ctx:
                     yield ctx
 
-    @property
-    def fixtures(self):
-        return self.marker.fixtures
-
-    @contextlib.contextmanager
-    def run(self, fixtures=None, context=None):
-        fixtures = [self.marker.get_or_self(f) for f in (fixtures or self.fixtures)]
-        ctx = context or Context()  # todo: scope
-        with self.use_fixture(ctx, fixtures) as ctx:
-            yield ctx
-
-    def run_with(self, args):
+    def run(self, args):
         if callable(args):
             fn = args
             fixtures = None
-            with self.run(fixtures) as ctx:
+            with self.run_fixture(fixtures) as ctx:
                 return fn(*ctx.args, **ctx.kwargs)
         else:
             fixtures = args
 
-            def _run_with(fn):
-                with self.run(fixtures) as ctx:
+            def _run(fn):
+                with self.run_fixture(fixtures) as ctx:
                     return fn(*ctx.args, **ctx.kwargs)
 
-            return _run_with
+            return _run
+
+    __call__ = run
 
 
-def create():
-    marker = Marker()
-    runner = Runner(marker)
-    return runner.run_with, marker.yield_fixture
+def create(manager=None):
+    runner = App(manager)
+    return runner, runner.yield_fixture
