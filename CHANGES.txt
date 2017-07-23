@@ -1,3 +1,7 @@
+0.3.2
+
+- only tuple treated as multiple values
+
 0.3.1
 
 - dispatch hook

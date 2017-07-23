@@ -23,7 +23,7 @@ testing_extras = tests_require + []
 
 setup(
     name='yieldfixture',
-    version='0.3.1',
+    version='0.3.2',
     description='tiny yield fixture',
     long_description=README + '\n\n' + CHANGES,
     classifiers=[
