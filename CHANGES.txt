@@ -1,3 +1,7 @@
+0.3.1
+
+- dispatch hook
+
 0.3.0
 
 - some internal refactoring(mainly, rename methods)

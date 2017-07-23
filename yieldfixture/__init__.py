@@ -89,8 +89,16 @@ class FixtureManager:
         return self.registered[f] if f in self.registered else f
 
 
+def dispatch_default(f, ctx):
+    args = []
+    if need_context(f):
+        args.append(ctx)
+    return f(*args)
+
+
 class App:
-    def __init__(self, manager=None):
+    def __init__(self, dispatcher=None, manager=None):
+        self.dispatcher = dispatcher or dispatch_default
         self.manager = manager or FixtureManager()
 
     def yield_fixture(self, fixture):
@@ -112,11 +120,7 @@ class App:
         if not fixtures:
             yield ctx
         else:
-            f = fixtures[0]
-            args = []
-            if need_context(f):
-                args.append(ctx)
-            with f(*args) as val:
+            with self.dispatcher(fixtures[0], ctx) as val:
                 with self._run_fixture(ctx.merge(val), fixtures[1:]) as ctx:
                     yield ctx
 
@@ -138,6 +142,6 @@ class App:
     __call__ = run
 
 
-def create(manager=None):
-    runner = App(manager)
+def create(*, dispatcher=None, manager=None):
+    runner = App(dispatcher, manager)
     return runner, runner.yield_fixture
