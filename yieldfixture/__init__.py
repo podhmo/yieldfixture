@@ -39,7 +39,7 @@ class Context:
             return self
         elif hasattr(value, "keys"):
             return self.__class__(self.args, ChainMap(value, self.kwargs))
-        elif isinstance(value, (list, tuple)):
+        elif isinstance(value, tuple):
             return self.__class__([*self.args, *value], ChainMap({}, self.kwargs))
         else:
             args = self.args[:]
